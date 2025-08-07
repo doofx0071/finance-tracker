@@ -79,9 +79,11 @@ export default function Home() {
         </Button>
       </div>
 
-      <div className="flex min-h-screen flex-col lg:flex-row">
+      <div className="flex min-h-screen flex-col lg:flex-row overflow-hidden">
         {/* Left Side - Hero Section */}
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
+        <div className={`flex-1 flex items-center justify-center p-4 lg:p-8 transition-all duration-500 ${
+          showAuthForm ? 'lg:flex-none lg:w-1/2' : 'lg:flex-1'
+        }`}>
           <div className="max-w-2xl space-y-6 lg:space-y-8 text-center lg:text-left">
             {/* Hero Content */}
             <div className="space-y-6 animate-fade-in">
@@ -166,10 +168,12 @@ export default function Home() {
         </div>
 
         {/* Right Side - Auth Form */}
-        <div className={`flex-1 flex items-center justify-center p-4 lg:p-8 transition-all duration-500 ${
+        <div className={`flex items-center justify-center p-4 lg:p-8 transition-all duration-500 ${
           isDarkMode ? 'bg-gray-950' : 'bg-gray-50'
-        } ${showAuthForm ? 'translate-x-0 lg:translate-x-0' : 'translate-x-full lg:translate-x-full'} ${
-          showAuthForm ? 'fixed inset-0 z-40 lg:relative lg:inset-auto lg:z-auto' : 'hidden lg:flex'
+        } ${
+          showAuthForm
+            ? 'fixed inset-0 z-40 lg:relative lg:inset-auto lg:z-auto lg:flex-none lg:w-1/2'
+            : 'hidden lg:hidden'
         }`}>
           <Card className={`w-full max-w-md transition-all duration-500 ${
             isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
