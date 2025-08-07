@@ -32,18 +32,18 @@ export function Sidebar({ className }: SidebarProps) {
 
   return (
     <div className={cn(
-      "flex flex-col bg-black border-r border-gray-800 transition-all duration-0",
+      "flex flex-col bg-black border-r border-gray-800 transition-all duration-300 ease-in-out",
       isCollapsed ? "w-16" : "w-64",
       className
     )}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         {!isCollapsed && (
-          <h1 className="text-xl font-bold text-white">Finance Tracker</h1>
+          <h1 className="text-xl font-bold text-white transition-opacity duration-300">Finance Tracker</h1>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-md hover:bg-gray-800 text-white"
+          className="p-2 rounded-md hover:bg-gray-800 text-white transition-all duration-200 hover:scale-110"
         >
           {isCollapsed ? <Menu size={20} /> : <X size={20} />}
         </button>
@@ -60,15 +60,21 @@ export function Sidebar({ className }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-0",
+                "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105",
                 isActive
-                  ? "bg-white text-black"
-                  : "text-gray-300 hover:bg-gray-800 hover:text-white",
+                  ? "bg-white text-black shadow-lg"
+                  : "text-gray-300 hover:bg-gray-800 hover:text-white hover:shadow-md",
                 isCollapsed && "justify-center"
               )}
             >
-              <Icon size={20} className={cn(isCollapsed ? "" : "mr-3")} />
-              {!isCollapsed && item.name}
+              <Icon size={20} className={cn(
+                "transition-transform duration-200",
+                isCollapsed ? "" : "mr-3",
+                !isActive && "group-hover:scale-110"
+              )} />
+              {!isCollapsed && (
+                <span className="transition-opacity duration-300">{item.name}</span>
+              )}
             </Link>
           )
         })}

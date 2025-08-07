@@ -41,20 +41,21 @@ export function BottomNav({ className }: BottomNavProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex flex-col items-center px-3 py-2 text-xs font-medium transition-colors duration-0",
+                "flex flex-col items-center px-3 py-2 text-xs font-medium transition-all duration-200 hover:scale-105",
                 isActive
                   ? "text-white"
                   : "text-gray-400 hover:text-white"
               )}
             >
-              <Icon 
-                size={20} 
+              <Icon
+                size={20}
                 className={cn(
-                  "mb-1",
-                  isActive ? "text-white" : "text-gray-400"
-                )} 
+                  "mb-1 transition-all duration-200",
+                  isActive ? "text-white scale-110" : "text-gray-400 hover:scale-110"
+                )}
               />
               <span className={cn(
+                "transition-colors duration-200",
                 isActive ? "text-white" : "text-gray-400"
               )}>
                 {item.name}
