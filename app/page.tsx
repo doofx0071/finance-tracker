@@ -58,7 +58,7 @@ export default function Home() {
       {/* Mobile Backdrop */}
       {showAuthForm && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 z-30 lg:hidden transition-all duration-500 ease-out animate-fade-in backdrop-blur-sm"
           onClick={() => setShowAuthForm(false)}
         />
       )}
@@ -134,33 +134,26 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* CTA Buttons */}
-              <div className="animate-fade-in-delay-3 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button
-                  onClick={() => setShowAuthForm(true)}
-                  size="lg"
-                  className={`px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg ${
-                    isDarkMode
-                      ? 'bg-white text-black hover:bg-gray-200'
-                      : 'bg-black text-white hover:bg-gray-800'
-                  }`}
-                >
-                  Get Started Free
-                </Button>
+              {/* CTA Button */}
+              <div className="animate-fade-in-delay-3 flex justify-center lg:justify-start">
                 <Button
                   onClick={() => {
                     setShowAuthForm(true)
                     setIsLogin(true)
                   }}
-                  variant="outline"
                   size="lg"
-                  className={`px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                  className={`px-12 py-4 text-lg font-semibold transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:-translate-y-2 active:scale-95 active:translate-y-0 animate-pulse-subtle ${
                     isDarkMode
-                      ? 'border-gray-600 text-white hover:bg-gray-800'
-                      : 'border-gray-300 text-black hover:bg-gray-100'
-                  }`}
+                      ? 'bg-white text-black hover:bg-gray-200 shadow-lg hover:shadow-white/20'
+                      : 'bg-black text-white hover:bg-gray-800 shadow-lg hover:shadow-black/30'
+                  } relative overflow-hidden group`}
                 >
-                  Sign In
+                  <span className="relative z-10">Sign In</span>
+                  <div className={`absolute inset-0 transition-transform duration-300 group-hover:scale-110 ${
+                    isDarkMode
+                      ? 'bg-gradient-to-r from-gray-100 to-white'
+                      : 'bg-gradient-to-r from-gray-800 to-black'
+                  }`} />
                 </Button>
               </div>
             </div>
@@ -168,16 +161,16 @@ export default function Home() {
         </div>
 
         {/* Right Side - Auth Form */}
-        <div className={`flex items-center justify-center p-4 lg:p-8 transition-all duration-500 ${
+        <div className={`flex items-center justify-center p-4 lg:p-8 transition-all duration-700 ease-out ${
           isDarkMode ? 'bg-gray-950' : 'bg-gray-50'
         } ${
           showAuthForm
-            ? 'fixed inset-0 z-40 lg:relative lg:inset-auto lg:z-auto lg:flex-none lg:w-1/2'
+            ? 'fixed inset-0 z-40 lg:relative lg:inset-auto lg:z-auto lg:flex-none lg:w-1/2 animate-slide-in-right'
             : 'hidden lg:hidden'
         }`}>
-          <Card className={`w-full max-w-md transition-all duration-500 ${
-            isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
-          } ${showAuthForm ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+          <Card className={`w-full max-w-md transition-all duration-700 ease-out ${
+            isDarkMode ? 'bg-gray-900 border-gray-800 shadow-2xl' : 'bg-white border-gray-200 shadow-2xl'
+          } ${showAuthForm ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-8'} animate-scale-in`}>
             <CardHeader className="space-y-1">
               <div className="flex items-center justify-between">
                 <CardTitle className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>
