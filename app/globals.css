@@ -42,37 +42,74 @@
 
 :root {
   --radius: 0.625rem;
-  /* Monochrome Theme - Black background, white text */
+  /* Light Mode Colors */
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #000000;
+  --muted: #f5f5f5;
+  --muted-foreground: #666666;
+  --accent: #f5f5f5;
+  --accent-foreground: #000000;
+  --destructive: #ef4444;
+  --border: #e5e5e5;
+  --input: #ffffff;
+  --ring: #000000;
+  /* Chart colors */
+  --chart-1: #000000;
+  --chart-2: #333333;
+  --chart-3: #666666;
+  --chart-4: #999999;
+  --chart-5: #cccccc;
+  /* Sidebar colors */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #000000;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f5f5;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: #000000;
+}
+
+.dark {
+  /* Dark Mode Colors */
   --background: #000000;
   --foreground: #ffffff;
-  --card: #000000;
+  --card: #111111;
   --card-foreground: #ffffff;
-  --popover: #000000;
+  --popover: #111111;
   --popover-foreground: #ffffff;
   --primary: #ffffff;
   --primary-foreground: #000000;
-  --secondary: #333333;
+  --secondary: #1a1a1a;
   --secondary-foreground: #ffffff;
-  --muted: #333333;
+  --muted: #1a1a1a;
   --muted-foreground: #cccccc;
-  --accent: #333333;
+  --accent: #1a1a1a;
   --accent-foreground: #ffffff;
-  --destructive: #ffffff;
+  --destructive: #ef4444;
   --border: #333333;
-  --input: #333333;
+  --input: #1a1a1a;
   --ring: #cccccc;
-  /* Chart colors in grayscale */
+  /* Chart colors in dark mode */
   --chart-1: #ffffff;
   --chart-2: #cccccc;
   --chart-3: #999999;
   --chart-4: #666666;
   --chart-5: #333333;
-  /* Sidebar colors */
+  /* Sidebar colors in dark mode */
   --sidebar: #000000;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #ffffff;
   --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #333333;
+  --sidebar-accent: #1a1a1a;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #333333;
   --sidebar-ring: #cccccc;
@@ -81,73 +118,65 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    /* Disable all animations and transitions */
-    animation: none !important;
-    transition: none !important;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-background text-foreground;
-    /* Enforce black background and white text */
-    background-color: #000000 !important;
-    color: #ffffff !important;
+    @apply bg-background text-foreground transition-colors duration-500;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Ensure all text is white on black background */
-  h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select {
-    color: #ffffff;
+  /* Smooth scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
   }
 
-  /* Style inputs and form elements */
-  input, textarea, select {
-    background-color: #333333;
-    border-color: #333333;
-    color: #ffffff;
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
   }
 
-  input:focus, textarea:focus, select:focus {
-    border-color: #cccccc;
-    outline: none;
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
   }
 
-  /* Button styles */
-  button {
-    background-color: #333333;
-    color: #ffffff;
-    border-color: #333333;
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
   }
 
-  button:hover {
-    background-color: #666666;
-  }
-
-  /* Enable subtle animations and transitions */
+  /* Enhanced smooth animations and transitions */
   *, *::before, *::after {
     transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 200ms;
+    transition-duration: 300ms;
   }
 
   /* Smooth hover effects for interactive elements */
-  button, a, [role="button"] {
-    transition: all 200ms ease-in-out;
+  button, a, [role="button"], .interactive {
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   button:hover, a:hover, [role="button"]:hover {
-    transform: translateY(-1px);
-  }
-
-  /* Card hover effects */
-  .card-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
   }
 
-  /* Fade in animation for page loads */
+  /* Enhanced card hover effects */
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .card-hover:hover {
+    box-shadow: 0 20px 40px rgba(255, 255, 255, 0.05);
+  }
+
+  /* Smooth fade in animations */
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
@@ -155,20 +184,68 @@
     }
   }
 
-  .animate-fade-in {
-    animation: fadeIn 600ms ease-out;
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
-  /* Stagger animation for multiple elements */
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 800ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   .animate-fade-in-delay-1 {
-    animation: fadeIn 600ms ease-out 100ms both;
+    animation: fadeIn 800ms cubic-bezier(0.4, 0, 0.2, 1) 200ms both;
   }
 
   .animate-fade-in-delay-2 {
-    animation: fadeIn 600ms ease-out 200ms both;
+    animation: fadeIn 800ms cubic-bezier(0.4, 0, 0.2, 1) 400ms both;
   }
 
   .animate-fade-in-delay-3 {
-    animation: fadeIn 600ms ease-out 300ms both;
+    animation: fadeIn 800ms cubic-bezier(0.4, 0, 0.2, 1) 600ms both;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Smooth focus states */
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: hsl(var(--ring));
+    ring-offset: 2px;
+    transition: all 200ms ease-in-out;
+  }
+
+  /* Enhanced button interactions */
+  button:active {
+    transform: scale(0.98);
+  }
+
+  /* Smooth theme transitions */
+  .theme-transition {
+    transition: background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out;
   }
 }
