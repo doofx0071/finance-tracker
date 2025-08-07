@@ -6,6 +6,7 @@ export interface Profile {
   email: string
   currency: string
   created_at: string
+  updated_at: string
 }
 
 export interface Transaction {
@@ -17,14 +18,16 @@ export interface Transaction {
   category: string
   notes?: string
   created_at: string
+  updated_at: string
 }
 
 export interface Budget {
   id: string
   user_id: string
-  month: string
+  month: string // Format: YYYY-MM
   budget_limit: number
   created_at: string
+  updated_at: string
 }
 
 export interface Goal {
@@ -35,6 +38,7 @@ export interface Goal {
   current_amount: number
   deadline?: string
   created_at: string
+  updated_at: string
 }
 
 export interface RecurringTransaction {
@@ -43,15 +47,21 @@ export interface RecurringTransaction {
   amount: number
   type: 'income' | 'expense'
   category: string
-  interval: 'weekly' | 'monthly' | 'yearly'
+  interval_type: 'weekly' | 'monthly' | 'yearly'
   next_due_date: string
+  is_active: boolean
   created_at: string
+  updated_at: string
 }
 
 export interface AuditLog {
   id: string
-  user_id: string
+  user_id?: string
   action: string
+  table_name?: string
+  record_id?: string
+  old_values?: Record<string, any>
+  new_values?: Record<string, any>
   ip_address?: string
   user_agent?: string
   timestamp: string
@@ -62,6 +72,8 @@ export interface ExportLog {
   user_id: string
   export_type: 'PDF' | 'CSV'
   export_date: string
+  file_size?: number
+  record_count?: number
 }
 
 // Form Types

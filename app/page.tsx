@@ -6,15 +6,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
-import { Moon, Sun, Eye, EyeOff, CreditCard, Target, BarChart3 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import { validateEmail, validatePassword, validateName } from '@/lib/auth'
+import { Moon, Sun, Eye, EyeOff, CreditCard, Target, BarChart3, Mail } from 'lucide-react'
 
 export default function Home() {
+  const { signIn, signUp, loading: authLoading } = useAuth()
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [showAuthForm, setShowAuthForm] = useState(false)
   const [isClosing, setIsClosing] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [successMessage, setSuccessMessage] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -41,26 +46,104 @@ export default function Home() {
       ...formData,
       [e.target.name]: e.target.value
     })
+    // Clear error for this field when user starts typing
+    if (errors[e.target.name]) {
+      setErrors({
+        ...errors,
+        [e.target.name]: ''
+      })
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true)
+      const { signInWithGoogle } = await import('@/lib/auth')
+      const { error, message } = await signInWithGoogle()
+
+      if (error) {
+        setErrors({ general: message || error.message })
+      }
+      // Note: Google OAuth will redirect, so no success handling needed here
+    } catch (error) {
+      console.error('Google sign in error:', error)
+      setErrors({ general: 'Failed to sign in with Google. Please try again.' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setErrors({})
+    setSuccessMessage('')
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    try {
+      // Validate form data
+      const validationErrors: Record<string, string> = {}
 
-    // TODO: Implement authentication logic
-    console.log('Form submitted:', formData)
-    setIsLoading(false)
+      if (!validateEmail(formData.email)) {
+        validationErrors.email = 'Please enter a valid email address'
+      }
 
-    // Reset form after successful submission
-    setFormData({
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
-    })
+      const passwordValidation = validatePassword(formData.password)
+      if (!passwordValidation.isValid) {
+        validationErrors.password = passwordValidation.message || 'Invalid password'
+      }
+
+      if (!isLogin) {
+        const nameValidation = validateName(formData.name)
+        if (!nameValidation.isValid) {
+          validationErrors.name = nameValidation.message || 'Invalid name'
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+          validationErrors.confirmPassword = 'Passwords do not match'
+        }
+      }
+
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors)
+        setIsLoading(false)
+        return
+      }
+
+      // Perform authentication
+      if (isLogin) {
+        const { user, error, message } = await signIn(formData.email, formData.password)
+
+        if (error) {
+          setErrors({ general: message || error.message })
+        } else if (user) {
+          setSuccessMessage('Successfully signed in!')
+          // Close form after successful login
+          setTimeout(() => {
+            handleCloseAuthForm()
+          }, 1500)
+        }
+      } else {
+        const { user, error, message } = await signUp(formData.email, formData.password, formData.name)
+
+        if (error) {
+          setErrors({ general: message || error.message })
+        } else if (user) {
+          setSuccessMessage(message || 'Account created successfully!')
+          // Reset form after successful signup
+          setFormData({
+            name: '',
+            email: '',
+            password: '',
+            confirmPassword: ''
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Authentication error:', error)
+      setErrors({ general: 'An unexpected error occurred. Please try again.' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -210,6 +293,20 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Error Message */}
+              {errors.general && (
+                <div className="mb-4 p-3 rounded-md bg-red-100 border border-red-300 text-red-700 text-sm">
+                  {errors.general}
+                </div>
+              )}
+
+              {/* Success Message */}
+              {successMessage && (
+                <div className="mb-4 p-3 rounded-md bg-green-100 border border-green-300 text-green-700 text-sm">
+                  {successMessage}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 {!isLogin && (
                   <div className="space-y-2">
@@ -225,9 +322,12 @@ export default function Home() {
                         isDarkMode
                           ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white'
                           : 'bg-white border-gray-300 text-black placeholder-gray-500 focus:border-black'
-                      }`}
+                      } ${errors.name ? 'border-red-500' : ''}`}
                       required={!isLogin}
                     />
+                    {errors.name && (
+                      <p className="text-red-500 text-sm">{errors.name}</p>
+                    )}
                   </div>
                 )}
 
@@ -244,9 +344,12 @@ export default function Home() {
                       isDarkMode
                         ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white'
                         : 'bg-white border-gray-300 text-black placeholder-gray-500 focus:border-black'
-                    }`}
+                    } ${errors.email ? 'border-red-500' : ''}`}
                     required
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm">{errors.email}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -263,7 +366,7 @@ export default function Home() {
                         isDarkMode
                           ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white'
                           : 'bg-white border-gray-300 text-black placeholder-gray-500 focus:border-black'
-                      }`}
+                      } ${errors.password ? 'border-red-500' : ''}`}
                       required
                     />
                     <Button
@@ -280,6 +383,9 @@ export default function Home() {
                       )}
                     </Button>
                   </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-sm">{errors.password}</p>
+                  )}
                 </div>
 
                 {!isLogin && (
@@ -296,28 +402,68 @@ export default function Home() {
                         isDarkMode
                           ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white'
                           : 'bg-white border-gray-300 text-black placeholder-gray-500 focus:border-black'
-                      }`}
+                      } ${errors.confirmPassword ? 'border-red-500' : ''}`}
                       required={!isLogin}
                     />
+                    {errors.confirmPassword && (
+                      <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+                    )}
                   </div>
                 )}
 
                 <Button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || authLoading}
                   className={`w-full transition-all duration-300 hover:scale-105 disabled:hover:scale-100 ${
                     isDarkMode
                       ? 'bg-white text-black hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400'
                       : 'bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500'
                   }`}
                 >
-                  {isLoading ? (
+                  {isLoading || authLoading ? (
                     <div className="flex items-center gap-2">
                       <Spinner size="sm" />
                       {isLogin ? 'Signing In...' : 'Creating Account...'}
                     </div>
                   ) : (
                     isLogin ? 'Sign In' : 'Create Account'
+                  )}
+                </Button>
+
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className={`w-full border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`} />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className={`px-2 ${isDarkMode ? 'bg-gray-900 text-gray-400' : 'bg-white text-gray-500'}`}>
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
+
+                {/* Google Sign In */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleGoogleSignIn}
+                  disabled={isLoading || authLoading}
+                  className={`w-full transition-all duration-300 hover:scale-105 disabled:hover:scale-100 ${
+                    isDarkMode
+                      ? 'border-gray-600 text-white hover:bg-gray-800 disabled:bg-gray-700 disabled:text-gray-500'
+                      : 'border-gray-300 text-black hover:bg-gray-100 disabled:bg-gray-200 disabled:text-gray-400'
+                  }`}
+                >
+                  {isLoading || authLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Spinner size="sm" />
+                      Connecting...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Continue with Google
+                    </div>
                   )}
                 </Button>
 
