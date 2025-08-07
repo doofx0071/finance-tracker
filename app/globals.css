@@ -201,6 +201,21 @@
     }
   }
 
+  @keyframes slideOutRight {
+    from {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: translateX(20px) scale(0.98);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(100px) scale(0.95);
+    }
+  }
+
   @keyframes scaleIn {
     from {
       opacity: 0;
@@ -252,6 +267,10 @@
 
   .animate-slide-in-right {
     animation: slideInRight 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-slide-out-right {
+    animation: slideOutRight 600ms cubic-bezier(0.4, 0, 0.6, 1);
   }
 
   .animate-scale-in {

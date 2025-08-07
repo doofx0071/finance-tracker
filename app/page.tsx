@@ -11,6 +11,7 @@ import { Moon, Sun, Eye, EyeOff, CreditCard, Target, BarChart3 } from 'lucide-re
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [showAuthForm, setShowAuthForm] = useState(false)
+  const [isClosing, setIsClosing] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -24,6 +25,15 @@ export default function Home() {
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode)
     document.documentElement.classList.toggle('dark')
+  }
+
+  const handleCloseAuthForm = () => {
+    setIsClosing(true)
+    // Wait for exit animation to complete before hiding
+    setTimeout(() => {
+      setShowAuthForm(false)
+      setIsClosing(false)
+    }, 600) // Match the animation duration
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,8 +68,10 @@ export default function Home() {
       {/* Mobile Backdrop */}
       {showAuthForm && (
         <div
-          className="fixed inset-0 bg-black/60 z-30 lg:hidden transition-all duration-500 ease-out animate-fade-in backdrop-blur-sm"
-          onClick={() => setShowAuthForm(false)}
+          className={`fixed inset-0 bg-black/60 z-30 lg:hidden transition-all duration-500 ease-out backdrop-blur-sm ${
+            isClosing ? 'opacity-0' : 'opacity-100 animate-fade-in'
+          }`}
+          onClick={handleCloseAuthForm}
         />
       )}
 
@@ -165,12 +177,20 @@ export default function Home() {
           isDarkMode ? 'bg-gray-950' : 'bg-gray-50'
         } ${
           showAuthForm
-            ? 'fixed inset-0 z-40 lg:relative lg:inset-auto lg:z-auto lg:flex-none lg:w-1/2 animate-slide-in-right'
+            ? `fixed inset-0 z-40 lg:relative lg:inset-auto lg:z-auto lg:flex-none lg:w-1/2 ${
+                isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'
+              }`
             : 'hidden lg:hidden'
         }`}>
-          <Card className={`w-full max-w-md transition-all duration-700 ease-out ${
+          <Card className={`w-full max-w-md transition-all duration-600 ease-out ${
             isDarkMode ? 'bg-gray-900 border-gray-800 shadow-2xl' : 'bg-white border-gray-200 shadow-2xl'
-          } ${showAuthForm ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-8'} animate-scale-in`}>
+          } ${
+            isClosing
+              ? 'scale-95 opacity-0 translate-y-8'
+              : showAuthForm
+                ? 'scale-100 opacity-100 translate-y-0 animate-scale-in'
+                : 'scale-95 opacity-0 translate-y-8'
+          }`}>
             <CardHeader className="space-y-1">
               <div className="flex items-center justify-between">
                 <CardTitle className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>
@@ -179,8 +199,8 @@ export default function Home() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowAuthForm(false)}
-                  className={`${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}
+                  onClick={handleCloseAuthForm}
+                  className={`transition-all duration-200 hover:scale-110 hover:rotate-90 ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}
                 >
                   ✕
                 </Button>
