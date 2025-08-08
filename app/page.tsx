@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { useAuth } from '@/hooks/useAuth'
-import { validateEmail, validatePassword, validateName } from '@/lib/auth'
+import { validateEmail, validatePassword, validateName, resetPassword } from '@/lib/auth'
 import { Moon, Sun, Eye, EyeOff, CreditCard, Target, BarChart3, Mail } from 'lucide-react'
 
 export default function Home() {
@@ -20,12 +20,47 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [successMessage, setSuccessMessage] = useState('')
+
+  // Forgot password modal state
+  const [showForgotModal, setShowForgotModal] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotLoading, setForgotLoading] = useState(false)
+  const [forgotError, setForgotError] = useState('')
+  const [forgotSuccess, setForgotSuccess] = useState('')
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: ''
   })
+
+  const openForgotModal = () => {
+    setForgotEmail(formData.email || '')
+    setForgotError('')
+    setForgotSuccess('')
+    setShowForgotModal(true)
+  }
+
+  const handleForgotSubmit = async () => {
+    setForgotError('')
+    setForgotSuccess('')
+
+    if (!validateEmail(forgotEmail)) {
+      setForgotError('Please enter a valid email address')
+      return
+    }
+
+    setForgotLoading(true)
+    const { error, message } = await resetPassword(forgotEmail)
+    setForgotLoading(false)
+
+    if (error) {
+      setForgotError(message || error.message)
+    } else {
+      setForgotSuccess(message || 'Password reset email sent. Please check your inbox.')
+    }
+  }
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode)
@@ -386,6 +421,17 @@ export default function Home() {
                   {errors.password && (
                     <p className="text-red-500 text-sm">{errors.password}</p>
                   )}
+                  {isLogin && (
+                    <div className="mt-2 text-right">
+                      <button
+                        type="button"
+                        onClick={openForgotModal}
+                        className={`text-sm underline transition-colors ${isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-black'}`}
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {!isLogin && (
@@ -418,8 +464,7 @@ export default function Home() {
                     isDarkMode
                       ? 'bg-white text-black hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400'
                       : 'bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500'
-                  }`}
-                >
+                  }`}>
                   {isLoading || authLoading ? (
                     <div className="flex items-center gap-2">
                       <Spinner size="sm" />
@@ -429,6 +474,82 @@ export default function Home() {
                     isLogin ? 'Sign In' : 'Create Account'
                   )}
                 </Button>
+
+                {/* Forgot Password Modal */}
+                {showForgotModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Backdrop */}
+                    <div
+                      className={`absolute inset-0 transition-opacity duration-300 ${isDarkMode ? 'bg-black/60' : 'bg-black/40'}`}
+                      onClick={() => setShowForgotModal(false)}
+                    />
+                    {/* Dialog */}
+                    <div
+                      className={`relative z-10 w-full max-w-md rounded-xl border p-6 shadow-2xl transition-all duration-300 ${
+                        isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-black'}`}>Reset your password</h3>
+                          <p className={`mt-1 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Enter your account email and we’ll send you a reset link.
+                          </p>
+                        </div>
+                        <button
+                          className={`h-8 w-8 rounded-md text-lg leading-none transition hover:scale-110 ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}
+                          onClick={() => setShowForgotModal(false)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      <div className="mt-4 space-y-3">
+                        {forgotError && (
+                          <div className="p-2 rounded-md bg-red-100 border border-red-300 text-red-700 text-sm">{forgotError}</div>
+                        )}
+                        {forgotSuccess && (
+                          <div className="p-2 rounded-md bg-green-100 border border-green-300 text-green-700 text-sm">{forgotSuccess}</div>
+                        )}
+
+                        <div className="space-y-2">
+                          <Label htmlFor="forgotEmail" className={isDarkMode ? 'text-white' : 'text-black'}>Email</Label>
+                          <Input
+                            id="forgotEmail"
+                            type="email"
+                            placeholder="you@example.com"
+                            value={forgotEmail}
+                            onChange={(e) => setForgotEmail(e.target.value)}
+                            className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-white' : 'bg-white border-gray-300 text-black placeholder-gray-500 focus:border-black'}`}
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-3 pt-2">
+                          <Button
+                            type="button"
+                            onClick={handleForgotSubmit}
+                            disabled={forgotLoading}
+                            className={`flex-1 ${isDarkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'}`}
+                          >
+                            {forgotLoading ? (
+                              <div className="flex items-center gap-2"><Spinner size="sm" /> Sending…</div>
+                            ) : (
+                              'Send reset link'
+                            )}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setShowForgotModal(false)}
+                            className={`flex-1 ${isDarkMode ? 'border-gray-700 text-white hover:bg-gray-800' : 'border-gray-300 text-black hover:bg-gray-100'}`}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Divider */}
                 <div className="relative">
